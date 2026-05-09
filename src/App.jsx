@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import { sendOTP, verifyOTP, registerKYC, getKYCStatus } from "./api/kycApi";
 import "./App.css";
 
@@ -11,6 +12,9 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [devOtp, setDevOtp] = useState("");
+  const [file, setFile] = useState(null);
+  const [uploadedUrl, setUploadedUrl] = useState("");
+  const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState({
     first_name: "",
     middle_name: "",
@@ -74,6 +78,29 @@ export default function App() {
     setLoading(false);
   };
 
+  const handleUpload = async () => {
+    setError("");
+    if (!file) {
+      setError("Please select a file");
+      return;
+    }
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await axios.post(
+        `http://127.0.0.1:8000/api/kyc/upload-id/${kycId}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+      setUploadedUrl(res.data.file_path);
+      setStep(5);
+    } catch (e) {
+      setError(e.response?.data?.detail || "Upload failed");
+    }
+    setUploading(false);
+  };
+
   const handleCheckStatus = async () => {
     setError("");
     setLoading(true);
@@ -86,7 +113,7 @@ export default function App() {
     setLoading(false);
   };
 
-  const steps = ["Mobile", "Verify OTP", "KYC Form", "Status"];
+  const steps = ["Mobile", "Verify OTP", "KYC Form", "Upload ID", "Status"];
 
   return (
     <div className="app">
@@ -224,7 +251,33 @@ export default function App() {
           </div>
         )}
 
-        {step === 4 && kycData && (
+        {step === 4 && (
+          <div className="screen">
+            <h2>Upload ID Proof</h2>
+            <p className="subtitle">Upload a valid government ID (JPG, PNG or PDF, max 10MB)</p>
+            <div className="upload-box">
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.pdf"
+                onChange={(e) => setFile(e.target.files[0])}
+                className="file-input"
+                id="file-upload"
+              />
+              <label htmlFor="file-upload" className="file-label">
+                {file ? `📄 ${file.name}` : "📁 Click to Choose File"}
+              </label>
+            </div>
+            {error && <p className="error">{error}</p>}
+            <button className="btn-primary" onClick={handleUpload} disabled={uploading}>
+              {uploading ? "Uploading..." : "Upload ID →"}
+            </button>
+            <button className="btn-link" onClick={() => setStep(5)}>
+              Skip for now →
+            </button>
+          </div>
+        )}
+
+        {step === 5 && kycData && (
           <div className="screen">
             <div className="success-icon">🎉</div>
             <h2>Registration Successful!</h2>
@@ -252,13 +305,21 @@ export default function App() {
                   <span className="label">OTP Verified</span>
                   <span className="value">{kycData.otp_verified === "true" ? "✅ Yes" : "❌ No"}</span>
                 </div>
+                {uploadedUrl && (
+                  <div className="status-item">
+                    <span className="label">ID Proof</span>
+                    <a href={uploadedUrl} target="_blank" rel="noreferrer" className="value doc-link">
+                      ✅ View Document
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
             <button className="btn-secondary" onClick={handleCheckStatus} disabled={loading}>
               {loading ? "Checking..." : "🔄 Refresh Status"}
             </button>
             <button className="btn-link" onClick={() => {
-              setStep(1); setMobile(""); setOtp("");
+              setStep(1); setMobile(""); setOtp(""); setFile(null); setUploadedUrl("");
               setForm({ first_name: "", middle_name: "", last_name: "", date_of_birth: "", email: "", address_1: "", address_2: "", address_3: "", customer_type: "Individual" });
               setError("");
             }}>

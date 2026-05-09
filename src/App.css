@@ -394,6 +394,37 @@ body {
   color: var(--text);
 }
 
+.upload-box { margin-bottom: 16px; }
+
+.file-input { display: none; }
+
+.file-label {
+  display: block;
+  padding: 32px 20px;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-light);
+  transition: all 0.2s ease;
+  background: #FAFAF8;
+}
+
+.file-label:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: white;
+}
+
+.doc-link {
+  color: var(--success);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.doc-link:hover { text-decoration: underline; }
+
 @media (max-width: 480px) {
   .card { padding: 24px 20px; }
   .form-grid { grid-template-columns: 1fr; }
