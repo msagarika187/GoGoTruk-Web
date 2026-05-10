@@ -39,3 +39,36 @@ export const getCompanyKYCStatus = async (companyKycId) => {
   const res = await axios.get(`${COMPANY_BASE_URL}/status/${companyKycId}`);
   return res.data;
 };
+
+const OWNER_KYC_BASE = "http://127.0.0.1:8000/api/owner-kyc";
+
+export const registerOwnerKYC = async (data) => {
+  const res = await axios.post(`${OWNER_KYC_BASE}/register`, data);
+  return res.data;
+};
+
+export const uploadOwnerDocs = async (ownerKycId, formData) => {
+  const res = await axios.post(`${OWNER_KYC_BASE}/upload-docs/${ownerKycId}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
+export const getOwnerKYCStatus = async (ownerKycId) => {
+  const res = await axios.get(`${OWNER_KYC_BASE}/status/${ownerKycId}`);
+  return res.data;
+};
+
+const CONSENT_BASE = "http://127.0.0.1:8000/api/consent";
+
+export const submitConsent = async (data) => {
+  const res = await axios.post(`${CONSENT_BASE}/submit`, data);
+  return res.data;
+};
+
+export const getConsentStatus = async (customerKycId) => {
+  const res = await axios.get(`${CONSENT_BASE}/status/${customerKycId}`);
+  return res.data;
+};
+
+export const getConsentPdfUrl = (consentId) => `${CONSENT_BASE}/pdf/${consentId}`;
