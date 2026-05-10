@@ -1,13 +1,13 @@
 # GoGoTruk Web UI
 
-React web frontend for the GoGoTruk logistics platform — KYC registration and admin review.
+React frontend for the GoGoTruk logistics platform. Covers KYC registration flows, an admin review panel, and fleet management.
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
+| | |
+|---|---|
 | Framework | React 19 |
 | Build Tool | Vite |
 | Routing | React Router DOM v7 |
@@ -16,43 +16,32 @@ React web frontend for the GoGoTruk logistics platform — KYC registration and 
 
 ---
 
-## How to Run
+## Getting Started
 
-### Step 1 — Start PostgreSQL
-```bash
-& "C:\Program Files\PostgreSQL\16\bin\pg_ctl.exe" start -D "C:\Users\madhas\postgresql\data" -l "C:\Users\madhas\postgresql\log.log"
-```
+### Prerequisites
+- Node.js 18+
+- Backend server running at `http://127.0.0.1:8000` (see backend README)
 
-### Step 2 — Start Backend
-```bash
-cd C:\Users\madhas\PycharmProjects\GoGo-Truk\truck_app
-uvicorn app.main:app --reload
-```
+### Install and run
 
-### Step 3 — Start Frontend
 ```bash
-cd C:\Users\sagas\GoGoTruk-Web
 npm install
 npm run dev
 ```
 
-### Step 4 — Open Browser
-
-| URL | Purpose |
-|-----|---------|
-| `http://localhost:5173/` | Customer KYC registration flow |
-| `http://localhost:5173/admin/kyc` | Admin pending queue |
-| `http://localhost:5173/admin/kyc/:type/:id` | Admin KYC detail + review |
+App opens at `http://localhost:5173`
 
 ---
 
-## Backend URL
+## App URLs
 
-```
-http://127.0.0.1:8000
-```
-
-API docs (Swagger): `http://127.0.0.1:8000/docs`
+| URL | Who uses it | Description |
+|-----|------------|-------------|
+| `/` | Customer / Truck Owner | KYC registration wizard |
+| `/fleet` | Truck Owner | Fleet vehicle management |
+| `/admin/kyc` | Admin | Pending KYC review queue |
+| `/admin/kyc/:type/:id` | Admin | KYC detail and approve/reject |
+| `/admin/vehicle-types` | Admin | Vehicle type CRUD |
 
 ---
 
@@ -61,59 +50,132 @@ API docs (Swagger): `http://127.0.0.1:8000/docs`
 ```
 src/
 ├── api/
-│   ├── kycApi.js        # Customer + Owner KYC API calls
-│   └── adminApi.js      # Admin review API calls
+│   ├── kycApi.js           # OTP, individual, company, owner KYC, consent
+│   ├── adminApi.js         # Admin KYC review endpoints
+│   ├── fleetApi.js         # Fleet registration and document upload
+│   └── vehicleTypeApi.js   # Public + admin vehicle type endpoints
+│
 ├── admin/
-│   ├── AdminKYCList.jsx # Pending queue page
-│   ├── AdminKYCDetail.jsx # Detail + review page
-│   └── Admin.css        # Admin panel styles
-├── App.jsx              # Customer-facing KYC wizard
-├── App.css              # Customer flow styles
-└── main.jsx             # React Router entry point
+│   ├── AdminKYCList.jsx    # Pending KYC queue table
+│   ├── AdminKYCDetail.jsx  # KYC detail view + approve/reject form
+│   ├── VehicleTypeList.jsx # Vehicle type management (add/edit/deactivate)
+│   └── Admin.css
+│
+├── fleet/
+│   ├── FleetPage.jsx       # All fleet screens (lookup, list, register, upload, edit expiry)
+│   └── Fleet.css
+│
+├── App.jsx                 # Customer + owner KYC wizard (all steps)
+├── App.css
+└── main.jsx                # Router entry point
 ```
 
 ---
 
-## Features Implemented
+## Features by Story
 
-### Customer Flow (`/`)
-- OTP-based mobile verification
-- Individual KYC registration (name, DOB, PAN, Aadhaar, address)
-- Company KYC registration (linked to individual KYC)
-- Truck Owner KYC registration (separate flow)
-- Digital consent / declaration screen with PDF download
-- ID document upload (images and PDFs)
+### Stories 1–4 — Customer KYC (`/`)
 
-### Admin Panel (`/admin/kyc`)
-- Pending KYC queue — Customer, Company, Owner types
-- Detail view with all submitted fields
-- Document preview — images shown inline, PDFs embedded via iframe
-- Approve / Reject with optional reason
-- Company records show link to their associated individual KYC
+Landing screen lets the user pick **Customer** or **Truck Owner**.
+
+**Customer — Individual:**
+1. Enter mobile → OTP verification
+2. Fill KYC form (name, DOB, PAN, Aadhaar, address)
+3. Digital consent / declaration (7 clauses, checkbox, PDF download)
+4. Upload ID proof (image or PDF)
+
+**Customer — Company:**
+Same as Individual, plus two extra steps:
+- Company details form (company name, GST, registration number, address)
+- Upload incorporation certificate + GST certificate
+
+**Truck Owner:**
+1. Enter mobile → OTP verification
+2. Fill owner details form
+3. Upload driving licence + owner ID
+4. Status screen with **Manage My Fleet →** link
+
+OTP is shown in a yellow banner on screen during development (no real SMS sent).
 
 ---
 
-## Document Viewing (Cloudinary)
+### Story 5 — Admin KYC Review (`/admin/kyc`)
 
-All KYC document URLs stored in the database are Cloudinary CDN URLs that require authentication. The backend exposes a proxy endpoint to generate short-lived signed URLs:
+- Table of all pending KYC submissions with type badges (Customer / Company / Owner)
+- Click **Review →** to open the detail page
+- Detail page shows all submitted fields + document previews
+- PDFs preview via embedded iframe; images shown as thumbnails
+- Approve or Reject with a reason (reason required for rejection)
+- Company records show a link to the associated individual KYC
 
+---
+
+### Story 6 — Fleet Vehicle Registration (`/fleet`)
+
+Truck owners access this after KYC is verified by admin.
+
+- Enter Owner KYC ID to view fleet
+- Register a vehicle (type, registration number, engine number, chassis number)
+- Upload RC book + insurance certificate
+- Fleet list shows all vehicles with doc status badges (✓ / ✗)
+- View RC book and insurance via proxy links
+
+Navigation: Landing page has **"Already a registered owner? Manage My Fleet →"** link. Owner KYC status screen also links here after completion.
+
+---
+
+### Story 7 — Vehicle Type Management (`/admin/vehicle-types`)
+
+- Lists all vehicle types including inactive ones
+- Add new types (name, description, max load capacity, dimensions)
+- Edit any type inline
+- Deactivate a type — removes it from the fleet registration dropdown immediately
+- Fleet registration dropdown is populated live from the API (not hardcoded)
+- Top nav bar switches between KYC Review and Vehicle Types
+
+---
+
+### Story 8 — Fleet Document Expiry Tracking (`/fleet`)
+
+Vehicle cards show expiry status for all 4 document types:
+
+| Indicator | Condition |
+|-----------|-----------|
+| 🟢 | More than 30 days remaining |
+| 🟡 | 30 days or fewer remaining |
+| 🔴 | 7 days or fewer / expired |
+
+- **Upload screen** — date pickers for RC expiry and insurance expiry alongside file upload
+- **✏️ Update Expiry Dates** button on each vehicle card — edit all 4 dates (RC, insurance, permit, PUC)
+- **Inactive banner** — if backend marks `is_active: false`, a red warning banner appears on the card
+
+---
+
+## Document Proxy
+
+All Cloudinary document URLs require authentication. Never use them directly in `src` or `href`. Always wrap through the proxy:
+
+```js
+`http://127.0.0.1:8000/api/docs/view?url=${encodeURIComponent(cloudinaryUrl)}`
 ```
-GET http://127.0.0.1:8000/api/docs/view?url=<cloudinary_url>
-```
 
-Returns a `302` redirect to a 1-hour signed link. The admin panel routes all document `src` and `href` attributes through this proxy automatically.
+This is already handled in `AdminKYCDetail.jsx` and `FleetPage.jsx`. Apply the same pattern to any new document display you add.
 
 ---
 
-## OTP in Development
+## Layout Conventions
 
-In dev mode the backend does not send real SMS. The OTP is printed to the uvicorn console and also returned in the API response as `dev_otp`. The UI displays it in a yellow banner on the OTP entry screen.
+| Area | Max width | Designed for |
+|------|-----------|--------------|
+| Customer / Owner KYC (`App.jsx`) | 560px | Mobile |
+| Fleet pages (`FleetPage.jsx`) | 600px | Mobile |
+| Admin pages (`admin/`) | 1100px | Desktop |
 
 ---
 
-## Notes for New Developers
+## Key Dev Notes
 
-- No login required for the admin panel yet (auth planned for Story 16)
-- The customer flow is mobile-first (max-width 560px); the admin panel is desktop-first (max-width 1100px)
-- All API base URLs are hardcoded to `http://127.0.0.1:8000` — update `src/api/*.js` if the backend moves
-- PDFs must be uploaded to Cloudinary with `resource_type="raw"` — see `cloudinary_client.py`
+- **Admin auth** — not implemented yet, planned for Story 16. The `/admin/*` routes are open by URL.
+- **API base URLs** — hardcoded to `http://127.0.0.1:8000` in all `src/api/*.js` files. Update there if the backend moves.
+- **Component scope** — `OTPScreen`, `VerifyOTPScreen`, and `UploadZone` are defined at module level in `App.jsx` (not inside the component). Keep them there — defining components inside a parent causes focus loss on every keystroke.
+- **Error parsing** — FastAPI validation errors return `detail` as an array. Use `parseApiError(e)` (defined locally in each page file) to handle both string and array formats.
