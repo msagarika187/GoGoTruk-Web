@@ -34,6 +34,12 @@ export default function AdminKYCList() {
 
   return (
     <div className="admin-container">
+      {/* Nav */}
+      <div className="admin-nav">
+        <span className="admin-nav-link active">KYC Review</span>
+        <button className="admin-nav-link" onClick={() => navigate("/admin/vehicle-types")}>Vehicle Types</button>
+      </div>
+
       <div className="admin-header">
         <div className="admin-logo">
           <span>🚛</span>

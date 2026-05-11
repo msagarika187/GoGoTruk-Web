@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   sendOTP, verifyOTP, registerKYC, getKYCStatus,
@@ -125,6 +126,7 @@ function UploadZone({ id, label, selectedFile, onFileChange, onClearError }) {
 // ── Main App ─────────────────────────────────────────────────────────────────
 
 export default function App() {
+  const navigate = useNavigate();
   const [userRole, setUserRole] = useState(null);         // null | "customer" | "owner"
   const [registrationType, setRegistrationType] = useState(null); // null | "Individual" | "Company"
 
@@ -394,6 +396,9 @@ export default function App() {
                 <p>Register your trucks and start accepting delivery jobs</p>
               </button>
             </div>
+            <button className="btn-link" onClick={() => navigate("/fleet")}>
+              Already a registered owner? Manage My Fleet →
+            </button>
           </div>
         </div>
       )}
@@ -821,7 +826,14 @@ export default function App() {
                     <div className="status-item"><span className="label">Owner KYC ID</span><span className="value">#{ownerKycData.id}</span></div>
                   </div>
                 </div>
-                <button className="btn-secondary" onClick={handleCheckOwnerStatus} disabled={loading}>
+                <button
+                  className="btn-primary"
+                  onClick={() => navigate("/fleet")}
+                  style={{ marginTop: "16px" }}
+                >
+                  Manage My Fleet →
+                </button>
+                <button className="btn-secondary" onClick={handleCheckOwnerStatus} disabled={loading} style={{ marginTop: "8px" }}>
                   {loading ? "Checking..." : "🔄 Refresh Status"}
                 </button>
                 <button className="btn-link" onClick={handleReset}>+ Register Another</button>

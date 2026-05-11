@@ -1,0 +1,435 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+.fleet-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+  font-family: 'DM Sans', sans-serif;
+  color: #1A1A2E;
+}
+
+.fleet-header {
+  text-align: center;
+  margin-bottom: 28px;
+  padding-top: 16px;
+}
+
+.fleet-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  margin-top: 8px;
+}
+
+.fleet-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.fleet-logo span:first-child { font-size: 1.75rem; }
+
+.fleet-logo-text {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1A1A2E;
+  letter-spacing: -0.5px;
+}
+
+.fleet-header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1A1A2E;
+  margin: 0 0 4px;
+  letter-spacing: -0.5px;
+}
+
+.fleet-subtitle { color: #6B7280; font-size: 0.875rem; }
+
+.fleet-hint {
+  color: #6B7280;
+  font-size: 0.875rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+/* Card */
+.fleet-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 8px 32px rgba(26, 26, 46, 0.1);
+  border: 1px solid #E5E0D8;
+}
+
+/* Inputs */
+.fleet-input-group { margin-bottom: 16px; }
+
+.fleet-input-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1A1A2E;
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.fleet-input-group input,
+.fleet-input-group select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #E5E0D8;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  color: #1A1A2E;
+  background: #FAFAF8;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.fleet-input-group input:focus,
+.fleet-input-group select:focus {
+  border-color: #FF6B00;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+}
+
+/* Error */
+.fleet-error {
+  color: #B91C1C;
+  font-size: 0.825rem;
+  margin: 8px 0 12px;
+  padding: 10px 14px;
+  background: #FEF2F2;
+  border-radius: 8px;
+  border-left: 3px solid #EF4444;
+}
+
+/* Buttons */
+.fleet-btn-primary {
+  width: 100%;
+  padding: 14px;
+  background: #FF6B00;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s ease;
+}
+
+.fleet-btn-primary:hover:not(:disabled) {
+  background: #e05a00;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255, 107, 0, 0.4);
+}
+
+.fleet-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.fleet-btn-add {
+  padding: 10px 20px;
+  background: #FF6B00;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.fleet-btn-add:hover { background: #e05a00; transform: translateY(-1px); }
+
+.fleet-btn-link {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  color: #6B7280;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: color 0.2s ease;
+  text-align: center;
+  display: block;
+}
+
+.fleet-btn-link:hover { color: #FF6B00; }
+
+/* Empty state */
+.fleet-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6B7280;
+}
+
+.fleet-empty-icon { font-size: 3rem; margin-bottom: 12px; }
+.fleet-empty p { font-size: 1rem; margin-bottom: 20px; }
+
+/* Vehicle grid */
+.fleet-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.fleet-vehicle-card {
+  background: white;
+  border: 1px solid #E5E0D8;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 16px rgba(26, 26, 46, 0.06);
+  transition: box-shadow 0.2s;
+}
+
+.fleet-vehicle-card:hover { box-shadow: 0 8px 24px rgba(26, 26, 46, 0.12); }
+
+.fleet-vehicle-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.fleet-vehicle-icon { font-size: 2rem; flex-shrink: 0; }
+
+.fleet-vehicle-type {
+  font-family: 'Syne', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #FF6B00;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.fleet-vehicle-reg {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #1A1A2E;
+  letter-spacing: 0.04em;
+}
+
+.fleet-vehicle-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 10px;
+  background: #F7F4EF;
+  border-radius: 8px;
+}
+
+.fleet-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.fleet-detail-label {
+  font-size: 0.7rem;
+  color: #9CA3AF;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.fleet-detail-value {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1A1A2E;
+  font-family: 'Syne', sans-serif;
+  text-align: right;
+  word-break: break-all;
+}
+
+.fleet-doc-status {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.fleet-doc-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-family: 'Syne', sans-serif;
+  letter-spacing: 0.03em;
+}
+
+.doc-ok { background: #D1FAE5; color: #065F46; }
+.doc-missing { background: #FEE2E2; color: #991B1B; }
+
+.fleet-doc-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fleet-doc-link {
+  font-size: 0.8rem;
+  color: #FF6B00;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.fleet-doc-link:hover { text-decoration: underline; }
+
+/* Inactive card */
+.fleet-card-inactive {
+  border-color: #FCA5A5;
+  background: #FFFBFB;
+}
+
+.fleet-inactive-banner {
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.78rem;
+  color: #B91C1C;
+  font-weight: 500;
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+
+/* Expiry dates */
+.fleet-expiry-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 14px;
+  padding: 10px;
+  background: #F7F4EF;
+  border-radius: 8px;
+}
+
+.fleet-expiry-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 6px;
+}
+
+.fleet-expiry-value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.expiry-green { color: #065F46; }
+.expiry-yellow { color: #92400E; }
+.expiry-red { color: #991B1B; }
+
+/* Edit expiry button */
+.fleet-btn-expiry {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  background: transparent;
+  border: 1.5px solid #E5E0D8;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.fleet-btn-expiry:hover {
+  border-color: #FF6B00;
+  color: #FF6B00;
+  background: rgba(255, 107, 0, 0.04);
+}
+
+/* Upload */
+.fleet-upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.fleet-upload-item { display: flex; flex-direction: column; gap: 6px; }
+
+.fleet-upload-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1A1A2E;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.fleet-required { color: #EF4444; }
+
+.fleet-upload-zone {
+  border: 2px dashed #E5E0D8;
+  border-radius: 12px;
+  padding: 24px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #FAFAF8;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.fleet-upload-zone:hover {
+  border-color: #FF6B00;
+  background: rgba(255, 107, 0, 0.03);
+}
+
+.fleet-upload-icon { font-size: 1.75rem; display: block; margin-bottom: 6px; }
+
+.fleet-upload-zone p { color: #6B7280; font-size: 0.825rem; margin: 0; }
+
+.fleet-upload-hint { margin-top: 2px !important; font-size: 0.72rem !important; }
+
+.fleet-file-input { display: none; }
+
+.fleet-file-selected {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.fleet-file-icon { font-size: 1.5rem; }
+
+.fleet-file-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #1A1A2E;
+  word-break: break-all;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .fleet-card { padding: 24px 16px; }
+  .fleet-grid { grid-template-columns: 1fr; }
+  .fleet-upload-grid { grid-template-columns: 1fr; }
+  .fleet-header-row { flex-direction: column; align-items: center; gap: 12px; }
+}
