@@ -95,6 +95,16 @@ export default function VehicleTypeList() {
     }
   };
 
+  const handleReactivate = async (id, name) => {
+    if (!window.confirm(`Reactivate "${name}"? It will reappear in the fleet registration dropdown.`)) return;
+    try {
+      await updateVehicleType(id, { is_active: true });
+      await load();
+    } catch (e) {
+      setError(parseApiError(e));
+    }
+  };
+
   return (
     <div className="admin-container">
       {/* Nav */}
@@ -214,12 +224,19 @@ export default function VehicleTypeList() {
                         <button className="admin-btn-review" onClick={() => openEdit(t)}>
                           Edit
                         </button>
-                        {t.is_active && (
+                        {t.is_active ? (
                           <button
                             className="admin-btn-review vt-btn-deactivate"
                             onClick={() => handleDeactivate(t.id, t.type_name)}
                           >
                             Deactivate
+                          </button>
+                        ) : (
+                          <button
+                            className="admin-btn-review vt-btn-reactivate"
+                            onClick={() => handleReactivate(t.id, t.type_name)}
+                          >
+                            Reactivate
                           </button>
                         )}
                       </div>
