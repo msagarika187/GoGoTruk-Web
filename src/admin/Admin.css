@@ -115,6 +115,9 @@
 .vt-btn-deactivate { background: #EF4444 !important; }
 .vt-btn-deactivate:hover { background: #DC2626 !important; }
 
+.vt-btn-reactivate { background: #10B981 !important; }
+.vt-btn-reactivate:hover { background: #059669 !important; }
+
 .admin-header { margin-bottom: 32px; }
 
 .admin-logo {

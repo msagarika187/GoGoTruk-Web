@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import FilePreview from "./components/FilePreview";
 import axios from "axios";
 import {
   sendOTP, verifyOTP, registerKYC, getKYCStatus,
@@ -34,11 +35,15 @@ const CONSENT_CLAUSES = [
   },
   {
     title: "6. DISPUTE RESOLUTION",
-    text: "Disputes are subject to exclusive jurisdiction of courts in Mumbai, Maharashtra, India. Mediation must be attempted before legal proceedings.",
+    text: "Disputes are subject to exclusive jurisdiction of courts in Chennai, Tamil Nadu, India. Mediation must be attempted before legal proceedings.",
   },
   {
     title: "7. PLATFORM USAGE",
     text: "The platform must only be used for lawful purposes. Fraudulent bookings or abuse of cancellation policy results in permanent account ban.",
+  },
+  {
+    title: "8. DRIVER NO-SHOW",
+    text: "In the event that the assigned driver fails to arrive at the agreed pickup location with the truck at the scheduled time, GoGoTruk will attempt to arrange an alternative vehicle within 2 hours. If no alternative is available, the customer is entitled to a full refund of any advance paid. Repeated no-shows by a driver will result in suspension of the truck owner's account. GoGoTruk bears no liability for consequential losses arising from a driver no-show beyond the refund of advance payment.",
   },
 ];
 
@@ -117,6 +122,7 @@ function UploadZone({ id, label, selectedFile, onFileChange, onClearError }) {
           </>
         )}
       </div>
+      {selectedFile && <FilePreview file={selectedFile} />}
       <input id={id} type="file" accept=".jpg,.jpeg,.png,.pdf" style={{ display: "none" }}
         onChange={(e) => { onFileChange(e.target.files[0]); onClearError(); }} />
     </div>
@@ -146,7 +152,7 @@ export default function App() {
   const [form, setForm] = useState({
     first_name: "", middle_name: "", last_name: "",
     date_of_birth: "", email: "",
-    address_1: "", address_2: "", address_3: "",
+    address_1: "", address_2: "", city: "", state: "", zip_code: "",
   });
 
   // Customer — Consent (step 4)
@@ -161,7 +167,7 @@ export default function App() {
   const [gstCertificate, setGstCertificate] = useState(null);
   const [companyForm, setCompanyForm] = useState({
     company_name: "", company_type: "Pvt Ltd", gst_number: "",
-    registered_address_1: "", registered_address_2: "", registered_address_3: "",
+    registered_address_1: "", registered_address_2: "",
     city: "", state: "", pincode: "",
     contact_person_name: "", contact_person_mobile: "", contact_person_email: "",
   });
@@ -174,7 +180,7 @@ export default function App() {
   const [ownerForm, setOwnerForm] = useState({
     first_name: "", middle_name: "", last_name: "",
     date_of_birth: "", email: "", company_name: "",
-    address_1: "", address_2: "", address_3: "",
+    address_1: "", address_2: "", city: "", state: "", zip_code: "",
   });
 
   // Derived
@@ -271,7 +277,9 @@ export default function App() {
       setError("Please fill all required fields"); return;
     }
     if (pincode.length !== 6) { setError("Pincode must be 6 digits"); return; }
-    if (contact_person_mobile.length !== 10) { setError("Enter a valid 10-digit contact mobile"); return; }
+    const isMobile = /^[6-9]\d{9}$/.test(contact_person_mobile);
+    const isLandline = /^0[1-9]\d{9}$/.test(contact_person_mobile);
+    if (!isMobile && !isLandline) { setError("Enter a valid Indian mobile (10 digits) or landline number (e.g. 01140001234)"); return; }
     setLoading(true);
     try {
       const res = await registerCompanyKYC({ ...companyForm, customer_kyc_id: kycId });
@@ -356,9 +364,9 @@ export default function App() {
     setIncorporationCert(null); setGstCertificate(null);
     setOwnerKycId(null); setOwnerKycData(null);
     setDrivingLicense(null); setOwnerId(null);
-    setForm({ first_name: "", middle_name: "", last_name: "", date_of_birth: "", email: "", address_1: "", address_2: "", address_3: "" });
-    setCompanyForm({ company_name: "", company_type: "Pvt Ltd", gst_number: "", registered_address_1: "", registered_address_2: "", registered_address_3: "", city: "", state: "", pincode: "", contact_person_name: "", contact_person_mobile: "", contact_person_email: "" });
-    setOwnerForm({ first_name: "", middle_name: "", last_name: "", date_of_birth: "", email: "", company_name: "", address_1: "", address_2: "", address_3: "" });
+    setForm({ first_name: "", middle_name: "", last_name: "", date_of_birth: "", email: "", address_1: "", address_2: "", city: "", state: "", zip_code: "" });
+    setCompanyForm({ company_name: "", company_type: "Pvt Ltd", gst_number: "", registered_address_1: "", registered_address_2: "", city: "", state: "", pincode: "", contact_person_name: "", contact_person_mobile: "", contact_person_email: "" });
+    setOwnerForm({ first_name: "", middle_name: "", last_name: "", date_of_birth: "", email: "", company_name: "", address_1: "", address_2: "", city: "", state: "", zip_code: "" });
   };
 
   const clearError = () => setError("");
@@ -483,13 +491,23 @@ export default function App() {
                       </div>
                       <div className="input-group full">
                         <label>Address Line 2</label>
-                        <input placeholder="Bangalore" value={form.address_2}
+                        <input placeholder="Apartment / Area" value={form.address_2}
                           onChange={(e) => setForm({ ...form, address_2: e.target.value })} />
                       </div>
+                      <div className="input-group">
+                        <label>City</label>
+                        <input placeholder="Chennai" value={form.city}
+                          onChange={(e) => setForm({ ...form, city: e.target.value })} />
+                      </div>
+                      <div className="input-group">
+                        <label>State</label>
+                        <input placeholder="Tamil Nadu" value={form.state}
+                          onChange={(e) => setForm({ ...form, state: e.target.value })} />
+                      </div>
                       <div className="input-group full">
-                        <label>Address Line 3</label>
-                        <input placeholder="Karnataka" value={form.address_3}
-                          onChange={(e) => setForm({ ...form, address_3: e.target.value })} />
+                        <label>ZIP / Pincode</label>
+                        <input placeholder="600001" maxLength={10} value={form.zip_code}
+                          onChange={(e) => setForm({ ...form, zip_code: e.target.value.replace(/\D/g, "") })} />
                       </div>
                     </div>
                     {error && <p className="error">{error}</p>}
@@ -597,13 +615,8 @@ export default function App() {
                       </div>
                       <div className="input-group full">
                         <label>Registered Address 2</label>
-                        <input placeholder="Phase 2" value={companyForm.registered_address_2}
+                        <input placeholder="Phase 2 / Near Main Gate" value={companyForm.registered_address_2}
                           onChange={(e) => setCompanyForm({ ...companyForm, registered_address_2: e.target.value })} />
-                      </div>
-                      <div className="input-group full">
-                        <label>Registered Address 3</label>
-                        <input placeholder="Near Main Gate" value={companyForm.registered_address_3}
-                          onChange={(e) => setCompanyForm({ ...companyForm, registered_address_3: e.target.value })} />
                       </div>
                       <div className="input-group">
                         <label>City *</label>
@@ -627,8 +640,8 @@ export default function App() {
                           onChange={(e) => setCompanyForm({ ...companyForm, contact_person_name: e.target.value })} />
                       </div>
                       <div className="input-group">
-                        <label>Contact Mobile *</label>
-                        <input placeholder="9876543210" maxLength={10} value={companyForm.contact_person_mobile}
+                        <label>Contact Mobile / Landline *</label>
+                        <input placeholder="9876543210 or 01140001234" maxLength={11} value={companyForm.contact_person_mobile}
                           onChange={(e) => setCompanyForm({ ...companyForm, contact_person_mobile: e.target.value.replace(/\D/g, "") })} />
                       </div>
                       <div className="input-group">
@@ -776,13 +789,23 @@ export default function App() {
                   </div>
                   <div className="input-group full">
                     <label>Address Line 2</label>
-                    <input placeholder="Nagpur" value={ownerForm.address_2}
+                    <input placeholder="Apartment / Area" value={ownerForm.address_2}
                       onChange={(e) => setOwnerForm({ ...ownerForm, address_2: e.target.value })} />
                   </div>
+                  <div className="input-group">
+                    <label>City</label>
+                    <input placeholder="Chennai" value={ownerForm.city}
+                      onChange={(e) => setOwnerForm({ ...ownerForm, city: e.target.value })} />
+                  </div>
+                  <div className="input-group">
+                    <label>State</label>
+                    <input placeholder="Tamil Nadu" value={ownerForm.state}
+                      onChange={(e) => setOwnerForm({ ...ownerForm, state: e.target.value })} />
+                  </div>
                   <div className="input-group full">
-                    <label>Address Line 3</label>
-                    <input value={ownerForm.address_3}
-                      onChange={(e) => setOwnerForm({ ...ownerForm, address_3: e.target.value })} />
+                    <label>ZIP / Pincode</label>
+                    <input placeholder="600001" maxLength={10} value={ownerForm.zip_code}
+                      onChange={(e) => setOwnerForm({ ...ownerForm, zip_code: e.target.value.replace(/\D/g, "") })} />
                   </div>
                 </div>
                 {error && <p className="error">{error}</p>}

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerVehicle, uploadFleetDocs, getOwnerVehicles, updateExpiryDates } from "../api/fleetApi";
 import { getPublicVehicleTypes } from "../api/vehicleTypeApi";
+import FilePreview from "../components/FilePreview";
 import "./Fleet.css";
 
 const VEHICLE_ICONS = {
@@ -47,6 +48,9 @@ const EMPTY_FORM = {
   registration_number: "",
   engine_number: "",
   chassis_number: "",
+  description: "",
+  max_load_capacity: "",
+  dimensions: "",
 };
 
 const EMPTY_EXPIRY = {
@@ -66,12 +70,17 @@ export default function FleetPage() {
   const [newFleetId, setNewFleetId] = useState(null);
 
   const [vehicleTypes, setVehicleTypes] = useState([]);
+  const [vehicleTypeData, setVehicleTypeData] = useState([]);
   const [form, setForm] = useState(EMPTY_FORM);
 
   const [rcBook, setRcBook] = useState(null);
   const [insurance, setInsurance] = useState(null);
+  const [permit, setPermit] = useState(null);
+  const [puc, setPuc] = useState(null);
   const [rcExpiryDate, setRcExpiryDate] = useState("");
   const [insuranceExpiryDate, setInsuranceExpiryDate] = useState("");
+  const [permitExpiryDate, setPermitExpiryDate] = useState("");
+  const [pucExpiryDate, setPucExpiryDate] = useState("");
   const [uploading, setUploading] = useState(false);
 
   const [editingVehicle, setEditingVehicle] = useState(null);
@@ -81,14 +90,35 @@ export default function FleetPage() {
   useEffect(() => {
     getPublicVehicleTypes()
       .then((res) => {
+        setVehicleTypeData(res.data);
         const names = res.data.map((t) => t.type_name);
         setVehicleTypes(names);
-        setForm((f) => ({ ...f, vehicle_type: f.vehicle_type || names[0] || "" }));
+        if (res.data.length > 0) {
+          const first = res.data[0];
+          setForm((f) => ({
+            ...f,
+            vehicle_type: f.vehicle_type || first.type_name || "",
+            description: f.description || first.description || "",
+            max_load_capacity: f.max_load_capacity !== "" ? f.max_load_capacity : (first.max_load_capacity ?? ""),
+            dimensions: f.dimensions || first.dimensions || "",
+          }));
+        }
       })
       .catch(() => {});
   }, []);
 
   const setField = (key, val) => setForm((f) => ({ ...f, [key]: val }));
+
+  const handleVehicleTypeChange = (typeName) => {
+    const t = vehicleTypeData.find((t) => t.type_name === typeName);
+    setForm((f) => ({
+      ...f,
+      vehicle_type: typeName,
+      description: t?.description || "",
+      max_load_capacity: t?.max_load_capacity ?? "",
+      dimensions: t?.dimensions || "",
+    }));
+  };
   const setExpiryField = (key, val) => setExpiryForm((f) => ({ ...f, [key]: val }));
 
   const refreshVehicles = async () => {
@@ -136,15 +166,23 @@ export default function FleetPage() {
       const fd = new FormData();
       fd.append("rc_book", rcBook);
       fd.append("insurance", insurance);
+      if (permit) fd.append("permit", permit);
+      if (puc) fd.append("puc", puc);
       if (rcExpiryDate) fd.append("rc_expiry_date", rcExpiryDate);
       if (insuranceExpiryDate) fd.append("insurance_expiry_date", insuranceExpiryDate);
+      if (permitExpiryDate) fd.append("permit_expiry_date", permitExpiryDate);
+      if (pucExpiryDate) fd.append("puc_expiry_date", pucExpiryDate);
       await uploadFleetDocs(newFleetId, fd);
       await refreshVehicles();
       setForm(EMPTY_FORM);
       setRcBook(null);
       setInsurance(null);
+      setPermit(null);
+      setPuc(null);
       setRcExpiryDate("");
       setInsuranceExpiryDate("");
+      setPermitExpiryDate("");
+      setPucExpiryDate("");
       setNewFleetId(null);
       setScreen("list");
     } catch (e) {
@@ -287,6 +325,24 @@ export default function FleetPage() {
                     <span className="fleet-detail-label">Chassis No.</span>
                     <span className="fleet-detail-value">{v.chassis_number}</span>
                   </div>
+                  {v.max_load_capacity != null && (
+                    <div className="fleet-detail-row">
+                      <span className="fleet-detail-label">Max Load</span>
+                      <span className="fleet-detail-value">{v.max_load_capacity}t</span>
+                    </div>
+                  )}
+                  {v.dimensions && (
+                    <div className="fleet-detail-row">
+                      <span className="fleet-detail-label">Dimensions</span>
+                      <span className="fleet-detail-value">{v.dimensions}</span>
+                    </div>
+                  )}
+                  {v.description && (
+                    <div className="fleet-detail-row" style={{ alignItems: "flex-start" }}>
+                      <span className="fleet-detail-label">Description</span>
+                      <span className="fleet-detail-value" style={{ textAlign: "right" }}>{v.description}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Expiry dates */}
@@ -311,26 +367,35 @@ export default function FleetPage() {
 
                 {/* Doc status */}
                 <div className="fleet-doc-status">
-                  <span className={`fleet-doc-badge ${hasDoc(v.rc_book_url) ? "doc-ok" : "doc-missing"}`}>
-                    {hasDoc(v.rc_book_url) ? "✓" : "✗"} RC Book
-                  </span>
-                  <span className={`fleet-doc-badge ${hasDoc(v.insurance_url) ? "doc-ok" : "doc-missing"}`}>
-                    {hasDoc(v.insurance_url) ? "✓" : "✗"} Insurance
-                  </span>
+                  {[
+                    { key: "rc_book_url",    label: "RC Book" },
+                    { key: "insurance_url",  label: "Insurance" },
+                    { key: "permit_url",     label: "Permit" },
+                    { key: "puc_url",        label: "PUC" },
+                  ].map(({ key, label }) => (
+                    <span key={key} className={`fleet-doc-badge ${hasDoc(v[key]) ? "doc-ok" : "doc-missing"}`}>
+                      {hasDoc(v[key]) ? "✓" : "✗"} {label}
+                    </span>
+                  ))}
                 </div>
 
-                {(hasDoc(v.rc_book_url) || hasDoc(v.insurance_url)) && (
+                {[
+                  { key: "rc_book_url",   label: "RC Book" },
+                  { key: "insurance_url", label: "Insurance" },
+                  { key: "permit_url",    label: "Permit" },
+                  { key: "puc_url",       label: "PUC" },
+                ].some(({ key }) => hasDoc(v[key])) && (
                   <div className="fleet-doc-links">
-                    {hasDoc(v.rc_book_url) && (
-                      <a href={proxyUrl(v.rc_book_url)} target="_blank" rel="noopener noreferrer" className="fleet-doc-link">
-                        View RC Book →
+                    {[
+                      { key: "rc_book_url",   label: "RC Book" },
+                      { key: "insurance_url", label: "Insurance" },
+                      { key: "permit_url",    label: "Permit" },
+                      { key: "puc_url",       label: "PUC" },
+                    ].filter(({ key }) => hasDoc(v[key])).map(({ key, label }) => (
+                      <a key={key} href={proxyUrl(v[key])} target="_blank" rel="noopener noreferrer" className="fleet-doc-link">
+                        View {label} →
                       </a>
-                    )}
-                    {hasDoc(v.insurance_url) && (
-                      <a href={proxyUrl(v.insurance_url)} target="_blank" rel="noopener noreferrer" className="fleet-doc-link">
-                        View Insurance →
-                      </a>
-                    )}
+                    ))}
                   </div>
                 )}
 
@@ -353,7 +418,7 @@ export default function FleetPage() {
         <div className="fleet-card">
           <div className="fleet-input-group">
             <label>Vehicle Type</label>
-            <select value={form.vehicle_type} onChange={(e) => setField("vehicle_type", e.target.value)}>
+            <select value={form.vehicle_type} onChange={(e) => handleVehicleTypeChange(e.target.value)}>
               {vehicleTypes.length === 0 && <option value="">Loading types…</option>}
               {vehicleTypes.map((t) => <option key={t} value={t}>{t}</option>)}
             </select>
@@ -385,6 +450,36 @@ export default function FleetPage() {
               onChange={(e) => setField("chassis_number", e.target.value.toUpperCase())}
             />
           </div>
+          <div className="fleet-input-group">
+            <label>Description <span className="fleet-optional">(optional)</span></label>
+            <textarea
+              className="fleet-textarea"
+              placeholder="Brief description of this vehicle"
+              value={form.description}
+              onChange={(e) => setField("description", e.target.value)}
+              rows={2}
+            />
+          </div>
+          <div className="fleet-input-group">
+            <label>Max Load Capacity (tonnes) <span className="fleet-optional">(optional)</span></label>
+            <input
+              type="number"
+              step="0.1"
+              min="0"
+              placeholder="e.g. 1.5"
+              value={form.max_load_capacity}
+              onChange={(e) => setField("max_load_capacity", e.target.value)}
+            />
+          </div>
+          <div className="fleet-input-group">
+            <label>Dimensions <span className="fleet-optional">(optional)</span></label>
+            <input
+              type="text"
+              placeholder="e.g. 4m x 2m x 2m"
+              value={form.dimensions}
+              onChange={(e) => setField("dimensions", e.target.value)}
+            />
+          </div>
           {error && <div className="fleet-error">{error}</div>}
           <button
             className="fleet-btn-primary"
@@ -406,65 +501,47 @@ export default function FleetPage() {
         <FleetHeader title="Upload Documents" subtitle="RC book and insurance certificate required" />
         <div className="fleet-card">
           <div className="fleet-upload-grid">
-            {/* RC Book */}
-            <div className="fleet-upload-item">
-              <div className="fleet-upload-label">RC Book <span className="fleet-required">*</span></div>
-              <label className="fleet-upload-zone" htmlFor="fleet_rc_book">
-                {rcBook ? (
-                  <div className="fleet-file-selected">
-                    <span className="fleet-file-icon">📄</span>
-                    <span className="fleet-file-name">{rcBook.name}</span>
-                  </div>
-                ) : (
-                  <>
-                    <span className="fleet-upload-icon">📁</span>
-                    <p>Upload RC Book</p>
-                    <p className="fleet-upload-hint">JPG, PNG or PDF</p>
-                  </>
-                )}
-              </label>
-              <input
-                id="fleet_rc_book"
-                type="file"
-                accept=".jpg,.jpeg,.png,.pdf"
-                className="fleet-file-input"
-                onChange={(e) => { setRcBook(e.target.files[0] || null); setError(""); }}
-              />
-              <div className="fleet-input-group" style={{ marginBottom: 0, marginTop: "8px" }}>
-                <label>RC Expiry Date</label>
-                <input type="date" value={rcExpiryDate} onChange={(e) => setRcExpiryDate(e.target.value)} />
+            {[
+              { id: "fleet_rc_book",   label: "RC Book",               required: true,  file: rcBook,    setFile: setRcBook,    expiry: rcExpiryDate,        setExpiry: setRcExpiryDate },
+              { id: "fleet_insurance", label: "Insurance Certificate",  required: true,  file: insurance, setFile: setInsurance, expiry: insuranceExpiryDate, setExpiry: setInsuranceExpiryDate },
+              { id: "fleet_permit",    label: "Permit",                 required: false, file: permit,    setFile: setPermit,    expiry: permitExpiryDate,    setExpiry: setPermitExpiryDate },
+              { id: "fleet_puc",       label: "PUC Certificate",        required: false, file: puc,       setFile: setPuc,       expiry: pucExpiryDate,       setExpiry: setPucExpiryDate },
+            ].map(({ id, label, required, file, setFile, expiry, setExpiry }) => (
+              <div key={id} className="fleet-upload-item">
+                <div className="fleet-upload-label">
+                  {label}
+                  {required
+                    ? <span className="fleet-required"> *</span>
+                    : <span className="fleet-optional"> (optional)</span>}
+                </div>
+                <label className="fleet-upload-zone" htmlFor={id}>
+                  {file ? (
+                    <div className="fleet-file-selected">
+                      <span className="fleet-file-icon">📄</span>
+                      <span className="fleet-file-name">{file.name}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="fleet-upload-icon">📁</span>
+                      <p>Upload {label}</p>
+                      <p className="fleet-upload-hint">JPG, PNG or PDF</p>
+                    </>
+                  )}
+                </label>
+                <input
+                  id={id}
+                  type="file"
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  className="fleet-file-input"
+                  onChange={(e) => { setFile(e.target.files[0] || null); setError(""); }}
+                />
+                {file && <FilePreview file={file} />}
+                <div className="fleet-input-group" style={{ marginBottom: 0, marginTop: "8px" }}>
+                  <label>Expiry Date</label>
+                  <input type="date" value={expiry} onChange={(e) => setExpiry(e.target.value)} />
+                </div>
               </div>
-            </div>
-
-            {/* Insurance */}
-            <div className="fleet-upload-item">
-              <div className="fleet-upload-label">Insurance Certificate <span className="fleet-required">*</span></div>
-              <label className="fleet-upload-zone" htmlFor="fleet_insurance">
-                {insurance ? (
-                  <div className="fleet-file-selected">
-                    <span className="fleet-file-icon">📄</span>
-                    <span className="fleet-file-name">{insurance.name}</span>
-                  </div>
-                ) : (
-                  <>
-                    <span className="fleet-upload-icon">📁</span>
-                    <p>Upload Insurance</p>
-                    <p className="fleet-upload-hint">JPG, PNG or PDF</p>
-                  </>
-                )}
-              </label>
-              <input
-                id="fleet_insurance"
-                type="file"
-                accept=".jpg,.jpeg,.png,.pdf"
-                className="fleet-file-input"
-                onChange={(e) => { setInsurance(e.target.files[0] || null); setError(""); }}
-              />
-              <div className="fleet-input-group" style={{ marginBottom: 0, marginTop: "8px" }}>
-                <label>Insurance Expiry Date</label>
-                <input type="date" value={insuranceExpiryDate} onChange={(e) => setInsuranceExpiryDate(e.target.value)} />
-              </div>
-            </div>
+            ))}
           </div>
 
           {error && <div className="fleet-error">{error}</div>}

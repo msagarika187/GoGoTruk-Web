@@ -81,7 +81,8 @@
 }
 
 .fleet-input-group input,
-.fleet-input-group select {
+.fleet-input-group select,
+.fleet-textarea {
   width: 100%;
   padding: 12px 16px;
   border: 2px solid #E5E0D8;
@@ -95,8 +96,15 @@
   box-sizing: border-box;
 }
 
+.fleet-textarea {
+  width: 100%;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
 .fleet-input-group input:focus,
-.fleet-input-group select:focus {
+.fleet-input-group select:focus,
+.fleet-textarea:focus {
   border-color: #FF6B00;
   background: white;
   box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
@@ -381,6 +389,7 @@
 }
 
 .fleet-required { color: #EF4444; }
+.fleet-optional { color: #9CA3AF; font-size: 0.72rem; font-weight: 400; }
 
 .fleet-upload-zone {
   border: 2px dashed #E5E0D8;
