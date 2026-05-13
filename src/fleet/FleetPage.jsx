@@ -282,9 +282,17 @@ export default function FleetPage() {
                 Owner KYC ID: {ownerKycId} · {vehicles.length} vehicle{vehicles.length !== 1 ? "s" : ""}
               </p>
             </div>
-            <button className="fleet-btn-add" onClick={() => { setError(""); setScreen("register"); }}>
-              + Add Vehicle
-            </button>
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}>
+              <button className="fleet-btn-add" onClick={() => { setError(""); setScreen("register"); }}>
+                + Add Vehicle
+              </button>
+              <button
+                className="fleet-btn-expiry"
+                onClick={() => navigate(`/bookings/owner?owner_kyc_id=${ownerKycId}`)}
+              >
+                📋 Incoming Bookings
+              </button>
+            </div>
           </div>
         </div>
 
@@ -401,6 +409,13 @@ export default function FleetPage() {
 
                 <button className="fleet-btn-expiry" onClick={() => openEditExpiry(v)}>
                   ✏️ Update Expiry Dates
+                </button>
+                <button
+                  className="fleet-btn-expiry"
+                  style={{ marginTop: "6px" }}
+                  onClick={() => navigate(`/availability?fleet_id=${v.id}`)}
+                >
+                  📅 Manage Availability
                 </button>
               </div>
             ))}

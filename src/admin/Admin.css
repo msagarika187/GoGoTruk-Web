@@ -33,6 +33,8 @@
 
 .admin-nav-link:hover { color: #FF6B00; }
 .admin-nav-link.active { color: #FF6B00; border-bottom-color: #FF6B00; cursor: default; }
+.admin-nav-logout { margin-left: auto; color: #9CA3AF; }
+.admin-nav-logout:hover { color: #EF4444 !important; }
 
 /* ── Vehicle type form ── */
 .admin-header-action-row {

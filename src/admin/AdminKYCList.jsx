@@ -38,6 +38,8 @@ export default function AdminKYCList() {
       <div className="admin-nav">
         <span className="admin-nav-link active">KYC Review</span>
         <button className="admin-nav-link" onClick={() => navigate("/admin/vehicle-types")}>Vehicle Types</button>
+        <button className="admin-nav-link" onClick={() => navigate("/admin/rate-cards")}>Rate Cards</button>
+        <button className="admin-nav-link admin-nav-logout" onClick={() => { sessionStorage.removeItem("adminAuth"); navigate("/"); }}>🔓 Logout</button>
       </div>
 
       <div className="admin-header">
