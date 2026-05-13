@@ -404,8 +404,21 @@ export default function App() {
                 <p>Register your trucks and start accepting delivery jobs</p>
               </button>
             </div>
-            <button className="btn-link" onClick={() => navigate("/fleet")}>
-              Already a registered owner? Manage My Fleet →
+            <div className="section-divider" style={{ marginTop: "24px" }}>Already registered?</div>
+            <div className="returning-grid">
+              <div className="returning-col">
+                <div className="returning-col-header">👤 Customers</div>
+                <button className="returning-link" onClick={() => navigate("/availability?mode=search")}>Search for trucks →</button>
+                <button className="returning-link" onClick={() => navigate("/bookings/customer")}>Track my bookings →</button>
+              </div>
+              <div className="returning-col">
+                <div className="returning-col-header">🚛 Truck Owners</div>
+                <button className="returning-link" onClick={() => navigate("/fleet")}>Manage My Fleet →</button>
+                <button className="returning-link" onClick={() => navigate("/bookings/owner")}>Incoming Bookings →</button>
+              </div>
+            </div>
+            <button className="admin-panel-btn" onClick={() => navigate("/admin/kyc")}>
+              🔧 Admin Panel →
             </button>
           </div>
         </div>
