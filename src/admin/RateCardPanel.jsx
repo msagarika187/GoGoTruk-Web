@@ -1,15 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { getAdminRateCards, createRateCard, updateRateCard } from "../api/rateCardApi";
 import { getPublicVehicleTypes } from "../api/vehicleTypeApi";
 import "./Admin.css";
 
 const EMPTY_FORM = {
-  vehicle_type: "",
-  distance_from_km: "0",
-  distance_to_km: "",
-  base_fare: "",
-  rate_per_km: "",
+  vehicle_type: "", distance_from_km: "0", distance_to_km: "", base_fare: "", rate_per_km: "",
 };
 
 function parseApiError(e) {
@@ -28,8 +23,7 @@ function fmt(n) {
   return `₹${Number(n).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
-export default function RateCardPage() {
-  const navigate = useNavigate();
+export default function RateCardPanel() {
   const [cards, setCards] = useState([]);
   const [vehicleTypes, setVehicleTypes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,10 +37,7 @@ export default function RateCardPage() {
   const load = async () => {
     setError("");
     try {
-      const [cardsRes, typesRes] = await Promise.all([
-        getAdminRateCards(),
-        getPublicVehicleTypes(),
-      ]);
+      const [cardsRes, typesRes] = await Promise.all([getAdminRateCards(), getPublicVehicleTypes()]);
       setCards(cardsRes.data);
       setVehicleTypes(typesRes.data.map((t) => t.type_name));
     } catch {
@@ -106,111 +97,53 @@ export default function RateCardPage() {
 
   const handleToggleActive = async (c) => {
     const verb = c.is_active ? "Deactivate" : "Reactivate";
-    if (!window.confirm(`${verb} this rate card for ${c.vehicle_type} (${fmtSlab(c)})?`)) return;
-    try {
-      await updateRateCard(c.id, { is_active: !c.is_active });
-      await load();
-    } catch (e) {
-      setError(parseApiError(e));
-    }
+    if (!window.confirm(`${verb} rate card for ${c.vehicle_type} (${fmtSlab(c)})?`)) return;
+    try { await updateRateCard(c.id, { is_active: !c.is_active }); await load(); }
+    catch (e) { setError(parseApiError(e)); }
   };
 
   return (
-    <div className="admin-container">
-      {/* Nav */}
-      <div className="admin-nav">
-        <button className="admin-nav-link" onClick={() => navigate("/admin/dashboard")}>Dashboard</button>
-        <button className="admin-nav-link" onClick={() => navigate("/admin/vehicle-types")}>Vehicle Types</button>
-        <span className="admin-nav-link active">Rate Cards</span>
-        <button className="admin-nav-link admin-nav-logout" onClick={() => { localStorage.removeItem("adminToken"); navigate("/admin/login"); }}>🔓 Logout</button>
+    <div>
+      <div className="dash-section-header">
+        <div className="admin-count">{cards.length} rate card{cards.length !== 1 ? "s" : ""}</div>
+        <button className="admin-btn-review" onClick={openAdd}>+ Add Rate Card</button>
       </div>
 
-      <div className="admin-header">
-        <div className="admin-logo">
-          <span>🚛</span>
-          <span className="admin-logo-text">GoGoTruk</span>
-        </div>
-        <div className="admin-header-action-row">
-          <div>
-            <h1>Rate Cards</h1>
-            <p className="admin-subtitle">Pricing slabs per vehicle type and distance range</p>
-          </div>
-          <button className="admin-btn-review" onClick={openAdd}>+ Add Rate Card</button>
-        </div>
-      </div>
-
-      {/* Inline add / edit form */}
       {showForm && (
         <div className="vt-form-card">
-          <div className="vt-form-title">
-            {editingId ? "Edit Rate Card" : "Add Rate Card"}
-          </div>
+          <div className="vt-form-title">{editingId ? "Edit Rate Card" : "Add Rate Card"}</div>
           <div className="vt-form-grid">
             <div className="admin-reason-group vt-full">
               <label className="admin-field-label">Vehicle Type</label>
               {vehicleTypes.length > 0 ? (
-                <select
-                  className="vt-input"
-                  value={form.vehicle_type}
-                  onChange={(e) => setField("vehicle_type", e.target.value)}
-                >
+                <select className="vt-input" value={form.vehicle_type}
+                  onChange={(e) => setField("vehicle_type", e.target.value)}>
                   {vehicleTypes.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               ) : (
-                <input
-                  className="vt-input"
-                  type="text"
-                  placeholder="e.g. Mini Truck"
-                  value={form.vehicle_type}
-                  onChange={(e) => setField("vehicle_type", e.target.value)}
-                />
+                <input className="vt-input" placeholder="e.g. Mini Truck" value={form.vehicle_type}
+                  onChange={(e) => setField("vehicle_type", e.target.value)} />
               )}
             </div>
             <div className="admin-reason-group">
               <label className="admin-field-label">Distance From (km)</label>
-              <input
-                className="vt-input"
-                type="number"
-                min="0"
-                placeholder="0"
-                value={form.distance_from_km}
-                onChange={(e) => setField("distance_from_km", e.target.value)}
-              />
+              <input className="vt-input" type="number" min="0" placeholder="0"
+                value={form.distance_from_km} onChange={(e) => setField("distance_from_km", e.target.value)} />
             </div>
             <div className="admin-reason-group">
               <label className="admin-field-label">Distance To (km) — blank = unlimited</label>
-              <input
-                className="vt-input"
-                type="number"
-                min="0"
-                placeholder="e.g. 200 (leave blank for unlimited)"
-                value={form.distance_to_km}
-                onChange={(e) => setField("distance_to_km", e.target.value)}
-              />
+              <input className="vt-input" type="number" min="0" placeholder="e.g. 200"
+                value={form.distance_to_km} onChange={(e) => setField("distance_to_km", e.target.value)} />
             </div>
             <div className="admin-reason-group">
               <label className="admin-field-label">Base Fare (₹)</label>
-              <input
-                className="vt-input"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="e.g. 500"
-                value={form.base_fare}
-                onChange={(e) => setField("base_fare", e.target.value)}
-              />
+              <input className="vt-input" type="number" min="0" step="0.01" placeholder="e.g. 500"
+                value={form.base_fare} onChange={(e) => setField("base_fare", e.target.value)} />
             </div>
             <div className="admin-reason-group">
               <label className="admin-field-label">Rate per km (₹)</label>
-              <input
-                className="vt-input"
-                type="number"
-                min="0"
-                step="0.01"
-                placeholder="e.g. 15"
-                value={form.rate_per_km}
-                onChange={(e) => setField("rate_per_km", e.target.value)}
-              />
+              <input className="vt-input" type="number" min="0" step="0.01" placeholder="e.g. 15"
+                value={form.rate_per_km} onChange={(e) => setField("rate_per_km", e.target.value)} />
             </div>
           </div>
           {formError && <div className="admin-error" style={{ marginTop: 0, marginBottom: "16px" }}>{formError}</div>}
@@ -218,18 +151,15 @@ export default function RateCardPage() {
             <button className="admin-btn-approve" onClick={handleSave} disabled={saving}>
               {saving ? "Saving…" : editingId ? "Save Changes" : "Add Rate Card"}
             </button>
-            <button className="vt-btn-cancel" onClick={() => setShowForm(false)} disabled={saving}>
-              Cancel
-            </button>
+            <button className="vt-btn-cancel" onClick={() => setShowForm(false)} disabled={saving}>Cancel</button>
           </div>
         </div>
       )}
 
       {error && <div className="admin-error">{error}</div>}
-
       {loading && <div className="admin-loading">Loading rate cards…</div>}
 
-      {!loading && !error && cards.length === 0 && (
+      {!loading && cards.length === 0 && (
         <div className="admin-empty">
           <div className="admin-empty-icon">💰</div>
           <p>No rate cards yet. Add one to enable invoice generation.</p>
@@ -263,14 +193,12 @@ export default function RateCardPage() {
                   </td>
                   <td>
                     <div className="vt-action-row">
-                      <button className="admin-btn-review" style={{ fontSize: "0.78rem", padding: "6px 14px" }} onClick={() => openEdit(c)}>
-                        Edit
-                      </button>
+                      <button className="admin-btn-review" style={{ fontSize: "0.78rem", padding: "6px 14px" }}
+                        onClick={() => openEdit(c)}>Edit</button>
                       <button
                         className={`admin-btn-review ${c.is_active ? "vt-btn-deactivate" : "vt-btn-reactivate"}`}
                         style={{ fontSize: "0.78rem", padding: "6px 14px" }}
-                        onClick={() => handleToggleActive(c)}
-                      >
+                        onClick={() => handleToggleActive(c)}>
                         {c.is_active ? "Deactivate" : "Reactivate"}
                       </button>
                     </div>

@@ -1,11 +1,9 @@
 import axios from "axios";
+import adminAxios from "./adminAxios";
 
-const PUBLIC_BASE = "http://127.0.0.1:8000/api";
-const ADMIN_BASE = "http://127.0.0.1:8000/api/admin";
+export const getPublicVehicleTypes = () => axios.get("http://127.0.0.1:8000/api/vehicle-types");
 
-export const getPublicVehicleTypes = () => axios.get(`${PUBLIC_BASE}/vehicle-types`);
-
-export const getAdminVehicleTypes = () => axios.get(`${ADMIN_BASE}/vehicle-types`);
-export const createVehicleType = (data) => axios.post(`${ADMIN_BASE}/vehicle-types`, data);
-export const updateVehicleType = (id, data) => axios.put(`${ADMIN_BASE}/vehicle-types/${id}`, data);
-export const deactivateVehicleType = (id) => axios.delete(`${ADMIN_BASE}/vehicle-types/${id}`);
+export const getAdminVehicleTypes = () => adminAxios.get("/vehicle-types");
+export const createVehicleType = (data) => adminAxios.post("/vehicle-types", data);
+export const updateVehicleType = (id, data) => adminAxios.put(`/vehicle-types/${id}`, data);
+export const deactivateVehicleType = (id) => adminAxios.delete(`/vehicle-types/${id}`);

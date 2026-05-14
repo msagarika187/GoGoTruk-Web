@@ -417,7 +417,7 @@ export default function App() {
                 <button className="returning-link" onClick={() => navigate("/bookings/owner")}>Incoming Bookings →</button>
               </div>
             </div>
-            <button className="admin-panel-btn" onClick={() => navigate("/admin/kyc")}>
+            <button className="admin-panel-btn" onClick={() => navigate("/admin/dashboard")}>
               🔧 Admin Panel →
             </button>
           </div>

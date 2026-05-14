@@ -1,13 +1,11 @@
-import axios from "axios";
+import adminAxios from "./adminAxios";
 
-const ADMIN_BASE = "http://127.0.0.1:8000/api/admin";
+export const getPendingKYC = () => adminAxios.get("/kyc/pending");
 
-export const getPendingKYC = () => axios.get(`${ADMIN_BASE}/kyc/pending`);
+export const getCustomerKYCDetail = (id) => adminAxios.get(`/kyc/customer/${id}`);
+export const getCompanyKYCDetail = (id) => adminAxios.get(`/kyc/company/${id}`);
+export const getOwnerKYCDetail = (id) => adminAxios.get(`/kyc/owner/${id}`);
 
-export const getCustomerKYCDetail = (id) => axios.get(`${ADMIN_BASE}/kyc/customer/${id}`);
-export const getCompanyKYCDetail = (id) => axios.get(`${ADMIN_BASE}/kyc/company/${id}`);
-export const getOwnerKYCDetail = (id) => axios.get(`${ADMIN_BASE}/kyc/owner/${id}`);
-
-export const reviewCustomerKYC = (id, data) => axios.post(`${ADMIN_BASE}/kyc/customer/${id}/review`, data);
-export const reviewCompanyKYC = (id, data) => axios.post(`${ADMIN_BASE}/kyc/company/${id}/review`, data);
-export const reviewOwnerKYC = (id, data) => axios.post(`${ADMIN_BASE}/kyc/owner/${id}/review`, data);
+export const reviewCustomerKYC = (id, data) => adminAxios.post(`/kyc/customer/${id}/review`, data);
+export const reviewCompanyKYC = (id, data) => adminAxios.post(`/kyc/company/${id}/review`, data);
+export const reviewOwnerKYC = (id, data) => adminAxios.post(`/kyc/owner/${id}/review`, data);

@@ -99,7 +99,7 @@ export default function AdminKYCDetail() {
       setToast(`KYC ${status}`);
       setTimeout(() => {
         setToast("");
-        navigate("/admin/kyc");
+        navigate("/admin/dashboard");
       }, 1800);
     } catch (e) {
       const detail = e.response?.data?.detail;
@@ -120,8 +120,8 @@ export default function AdminKYCDetail() {
       )}
 
       <div className="admin-detail-header">
-        <button className="admin-btn-back" onClick={() => navigate("/admin/kyc")}>
-          ← Back to Queue
+        <button className="admin-btn-back" onClick={() => navigate("/admin/dashboard")}>
+          ← Back to Dashboard
         </button>
         <div className="admin-header">
           <div className="admin-logo">
